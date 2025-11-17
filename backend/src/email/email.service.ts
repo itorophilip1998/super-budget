@@ -47,7 +47,9 @@ export class EmailService {
         await this.transporter.verify();
         console.log('✅ SMTP server connection verified successfully');
       } else {
-        console.warn('⚠️ SMTP credentials not configured - emails will not be sent');
+        console.warn(
+          '⚠️ SMTP credentials not configured - emails will not be sent',
+        );
       }
     } catch (error) {
       console.error('❌ SMTP connection verification failed:', error);
@@ -83,7 +85,10 @@ export class EmailService {
     });
 
     const mailOptions = {
-      from: process.env.SMTP_SENDER || process.env.SUPPORT_EMAIL || 'noreply@superbudget.com',
+      from:
+        process.env.SMTP_SENDER ||
+        process.env.SUPPORT_EMAIL ||
+        'noreply@superbudget.com',
       to: email,
       replyTo: process.env.SMTP_REPLY_TO || process.env.SUPPORT_EMAIL,
       subject: `You've been assigned to a new project: ${projectName}`,
@@ -106,11 +111,15 @@ export class EmailService {
     try {
       // Only send email if SMTP is configured
       if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-        console.warn(`⚠️ Email would be sent to ${email} for project ${projectName} (SMTP not configured)`);
+        console.warn(
+          `⚠️ Email would be sent to ${email} for project ${projectName} (SMTP not configured)`,
+        );
         return null;
       }
 
-      console.log(`📧 Attempting to send email to ${email} for project ${projectName}`);
+      console.log(
+        `📧 Attempting to send email to ${email} for project ${projectName}`,
+      );
       console.log('Mail options:', {
         from: mailOptions.from,
         to: mailOptions.to,
@@ -119,10 +128,13 @@ export class EmailService {
       });
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log(`✅ Email sent successfully to ${email} for project ${projectName}`, {
-        messageId: info.messageId,
-        response: info.response,
-      });
+      console.log(
+        `✅ Email sent successfully to ${email} for project ${projectName}`,
+        {
+          messageId: info.messageId,
+          response: info.response,
+        },
+      );
       return info;
     } catch (error) {
       console.error('❌ Error sending email:', error);
@@ -141,4 +153,3 @@ export class EmailService {
     }
   }
 }
-

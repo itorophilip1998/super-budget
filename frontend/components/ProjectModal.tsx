@@ -127,14 +127,14 @@ export default function ProjectModal({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="glass backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-white/20"
+          className="glass backdrop-blur-xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700"
         >
           <div className="p-8">
             <div className="flex justify-between items-center mb-6">
               <motion.h2
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+                className="text-3xl font-extrabold text-white"
               >
                 {project ? 'Edit Project' : 'Add New Project'}
               </motion.h2>
@@ -142,7 +142,7 @@ export default function ProjectModal({
                 onClick={onClose}
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+                className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-700"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -156,7 +156,7 @@ export default function ProjectModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <label className="block text-base font-medium text-gray-500 mb-2">
+                <label className="block text-base font-semibold text-white mb-2">
                   Project Name *
                 </label>
                 <motion.input
@@ -175,7 +175,7 @@ export default function ProjectModal({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="mt-2 text-sm text-red-600 font-medium"
+                      className="mt-2 text-sm text-red-400 font-medium"
                     >
                       {errors.name}
                     </motion.p>
@@ -188,7 +188,7 @@ export default function ProjectModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <label className="block text-base font-medium text-gray-500 mb-2">
+                <label className="block text-base font-semibold text-white mb-2">
                   Status *
                 </label>
                 <motion.select
@@ -208,7 +208,7 @@ export default function ProjectModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label className="block text-base font-medium text-gray-500 mb-2">
+                <label className="block text-base font-semibold text-white mb-2">
                   Deadline *
                 </label>
                 <motion.input
@@ -226,7 +226,7 @@ export default function ProjectModal({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="mt-2 text-sm text-red-600 font-medium"
+                      className="mt-2 text-sm text-red-400 font-medium"
                     >
                       {errors.deadline}
                     </motion.p>
@@ -239,7 +239,7 @@ export default function ProjectModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <label className="block text-base font-medium text-gray-500 mb-2">
+                <label className="block text-base font-semibold text-white mb-2">
                   Assigned Team Member *
                 </label>
                 <motion.input
@@ -260,7 +260,7 @@ export default function ProjectModal({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="mt-2 text-sm text-red-600 font-medium"
+                      className="mt-2 text-sm text-red-400 font-medium"
                     >
                       {errors.assignedTeamMember}
                     </motion.p>
@@ -273,11 +273,11 @@ export default function ProjectModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <label className="block text-base font-medium text-gray-500 mb-2">
+                <label className="block text-base font-semibold text-white mb-2">
                   Budget *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">
+                  <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-300 font-bold text-lg">
                     $
                   </span>
                   <motion.input
@@ -318,7 +318,7 @@ export default function ProjectModal({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="mt-2 text-sm text-red-600 font-medium"
+                      className="mt-2 text-sm text-red-400 font-medium"
                     >
                       {errors.budget}
                     </motion.p>

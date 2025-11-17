@@ -56,7 +56,7 @@ export default function DeleteConfirmModal({
             <motion.h3
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-2xl font-extrabold text-gray-900 text-center mb-3"
+              className="text-2xl font-extrabold text-gray-800 text-center mb-3"
             >
               Delete Project
             </motion.h3>
@@ -65,12 +65,12 @@ export default function DeleteConfirmModal({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-base text-gray-600 text-center mb-8"
+              className="text-base text-gray-700 text-center mb-8"
             >
               Are you sure you want to delete{' '}
-              {projectName && <span className="font-bold text-gray-900">&quot;{projectName}&quot;</span>}?
+              {projectName && <span className="font-bold text-gray-800">&quot;{projectName}&quot;</span>}?
               <br />
-              <span className="text-red-600 font-semibold">This action cannot be undone.</span>
+              <span className="text-red-700 font-semibold">This action cannot be undone.</span>
             </motion.p>
 
             <div className="flex justify-end space-x-4">
