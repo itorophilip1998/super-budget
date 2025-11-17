@@ -1,6 +1,7 @@
 'use client';
 
 import LoadingSpinner from './LoadingSpinner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -20,63 +21,90 @@ export default function DeleteConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div className="p-6">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-            <svg
-              className="w-6 h-6 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+          className="glass backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-white/20"
+        >
+          <div className="p-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+              className="flex items-center justify-center w-16 h-16 mx-auto bg-gradient-to-br from-red-400 to-rose-600 rounded-full mb-6 shadow-xl"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </motion.div>
+
+            <motion.h3
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-2xl font-extrabold text-gray-900 text-center mb-3"
+            >
+              Delete Project
+            </motion.h3>
+
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-base text-gray-600 text-center mb-8"
+            >
+              Are you sure you want to delete{' '}
+              {projectName && <span className="font-bold text-gray-900">&quot;{projectName}&quot;</span>}?
+              <br />
+              <span className="text-red-600 font-semibold">This action cannot be undone.</span>
+            </motion.p>
+
+            <div className="flex justify-end space-x-4">
+              <motion.button
+                type="button"
+                onClick={onClose}
+                disabled={isDeleting}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 font-bold shadow-lg transition-all"
+              >
+                Cancel
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={onConfirm}
+                disabled={isDeleting}
+                whileHover={{ scale: isDeleting ? 1 : 1.05 }}
+                whileTap={{ scale: isDeleting ? 1 : 0.95 }}
+                className="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl hover:from-red-500 hover:to-rose-500 disabled:opacity-50 flex items-center justify-center min-w-[120px] font-bold shadow-xl transition-all"
+              >
+                {isDeleting ? (
+                  <span className="flex items-center">
+                    <LoadingSpinner size="sm" />
+                    <span className="ml-2">Deleting...</span>
+                  </span>
+                ) : (
+                  'Delete'
+                )}
+              </motion.button>
+            </div>
           </div>
-
-          <h3 className="text-lg font-medium text-gray-900 text-center mb-2">
-            Delete Project
-          </h3>
-
-          <p className="text-sm text-gray-500 text-center mb-6">
-            Are you sure you want to delete{' '}
-            {projectName && <span className="font-semibold">"{projectName}"</span>}?
-            This action cannot be undone.
-          </p>
-
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isDeleting}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              disabled={isDeleting}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center min-w-[100px]"
-            >
-              {isDeleting ? (
-                <span className="flex items-center">
-                  <LoadingSpinner size="sm" />
-                  <span className="ml-2">Deleting...</span>
-                </span>
-              ) : (
-                'Delete'
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
-

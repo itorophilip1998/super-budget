@@ -4,6 +4,7 @@ import { Project, ProjectStatus, CreateProjectDto } from '@/types/project';
 import { createProject, updateProject } from '@/lib/api';
 import LoadingSpinner from './LoadingSpinner';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export default function ProjectModal({
       setFormData({
         name: project.name,
         status: project.status,
-        deadline: project.deadline.split('T')[0], // Format date for input
+        deadline: project.deadline.split('T')[0],
         assignedTeamMember: project.assignedTeamMember,
         budget: project.budget,
       });
@@ -48,6 +49,17 @@ export default function ProjectModal({
     }
     setErrors({});
   }, [project, isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateProjectDto, string>> = {};
@@ -64,8 +76,11 @@ export default function ProjectModal({
       newErrors.assignedTeamMember = 'Team member is required';
     }
 
-    if (formData.budget < 0) {
-      newErrors.budget = 'Budget must be positive';
+    if (formData.budget === undefined || formData.budget === null || formData.budget < 0) {
+      newErrors.budget = 'Budget must be a positive number';
+    }
+    if (formData.budget === 0) {
+      newErrors.budget = 'Budget must be greater than 0';
     }
 
     setErrors(newErrors);
@@ -99,172 +114,254 @@ export default function ProjectModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {project ? 'Edit Project' : 'Add New Project'}
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+          className="glass backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-white/20"
+        >
+          <div className="p-8">
+            <div className="flex justify-between items-center mb-6">
+              <motion.h2
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-base font-semibold text-gray-900 mb-2">
-                Project Name *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className={`w-full px-5 py-3 text-base border-2 rounded-lg text-gray-900 placeholder-gray-400 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter project name"
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600 font-medium">{errors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-base font-semibold text-gray-900 mb-2">
-                Status *
-              </label>
-              <select
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    status: e.target.value as ProjectStatus,
-                  })
-                }
-                className="w-full px-5 py-3 text-base border-2 border-gray-300 rounded-lg text-gray-900 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-medium"
-              >
-                <option value={ProjectStatus.ACTIVE}>Active</option>
-                <option value={ProjectStatus.ON_HOLD}>On Hold</option>
-                <option value={ProjectStatus.COMPLETED}>Completed</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-base font-semibold text-gray-900 mb-2">
-                Deadline *
-              </label>
-              <input
-                type="date"
-                value={formData.deadline}
-                onChange={(e) =>
-                  setFormData({ ...formData, deadline: e.target.value })
-                }
-                className={`w-full px-5 py-3 text-base border-2 rounded-lg text-gray-900 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  errors.deadline ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.deadline && (
-                <p className="mt-1 text-sm text-red-600 font-medium">{errors.deadline}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-base font-semibold text-gray-900 mb-2">
-                Assigned Team Member *
-              </label>
-              <input
-                type="text"
-                value={formData.assignedTeamMember}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    assignedTeamMember: e.target.value,
-                  })
-                }
-                className={`w-full px-5 py-3 text-base border-2 rounded-lg text-gray-900 placeholder-gray-400 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  errors.assignedTeamMember
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300'
-                }`}
-                placeholder="Enter team member email or name"
-              />
-              {errors.assignedTeamMember && (
-                <p className="mt-1 text-sm text-red-600 font-medium">
-                  {errors.assignedTeamMember}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-base font-semibold text-gray-900 mb-2">
-                Budget *
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.budget}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    budget: parseFloat(e.target.value) || 0,
-                  })
-                }
-                className={`w-full px-5 py-3 text-base border-2 rounded-lg text-gray-900 placeholder-gray-400 bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                  errors.budget ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
-                }`}
-                placeholder="0.00"
-              />
-              {errors.budget && (
-                <p className="mt-1 text-sm text-red-600 font-medium">{errors.budget}</p>
-              )}
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-6">
-              <button
-                type="button"
+                {project ? 'Edit Project' : 'Add New Project'}
+              </motion.h2>
+              <motion.button
                 onClick={onClose}
-                className="px-6 py-3 text-base font-semibold border-2 border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 shadow-sm"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-3 text-base font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 shadow-sm flex items-center justify-center min-w-[120px]"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center">
-                    <LoadingSpinner size="sm" />
-                    <span className="ml-2">Saving...</span>
-                  </span>
-                ) : (
-                  project ? 'Update' : 'Create'
-                )}
-              </button>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </motion.button>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <label className="block text-base font-medium text-gray-500 mb-2">
+                  Project Name *
+                </label>
+                <motion.input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  whileFocus={{ scale: 1.02 }}
+                  className={`w-full px-5 py-4 text-base rounded-xl text-gray-900 placeholder-gray-400 bg-white/80 backdrop-blur-sm border-2 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                    errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter project name"
+                />
+                <AnimatePresence>
+                  {errors.name && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2 text-sm text-red-600 font-medium"
+                    >
+                      {errors.name}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <label className="block text-base font-medium text-gray-500 mb-2">
+                  Status *
+                </label>
+                <motion.select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
+                  whileFocus={{ scale: 1.02 }}
+                  className="w-full px-5 py-4 text-base rounded-xl bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-900 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-semibold transition-all"
+                >
+                  <option value={ProjectStatus.ACTIVE}>Active</option>
+                  <option value={ProjectStatus.ON_HOLD}>On Hold</option>
+                  <option value={ProjectStatus.COMPLETED}>Completed</option>
+                </motion.select>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <label className="block text-base font-medium text-gray-500 mb-2">
+                  Deadline *
+                </label>
+                <motion.input
+                  type="date"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  whileFocus={{ scale: 1.02 }}
+                  className={`w-full px-5 py-4 text-base rounded-xl text-gray-900 bg-white/80 backdrop-blur-sm border-2 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                    errors.deadline ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
+                  }`}
+                />
+                <AnimatePresence>
+                  {errors.deadline && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2 text-sm text-red-600 font-medium"
+                    >
+                      {errors.deadline}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <label className="block text-base font-medium text-gray-500 mb-2">
+                  Assigned Team Member *
+                </label>
+                <motion.input
+                  type="text"
+                  value={formData.assignedTeamMember}
+                  onChange={(e) => setFormData({ ...formData, assignedTeamMember: e.target.value })}
+                  whileFocus={{ scale: 1.02 }}
+                  className={`w-full px-5 py-4 text-base rounded-xl text-gray-900 placeholder-gray-400 bg-white/80 backdrop-blur-sm border-2 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                    errors.assignedTeamMember
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                      : 'border-gray-300'
+                  }`}
+                  placeholder="Enter team member email or name"
+                />
+                <AnimatePresence>
+                  {errors.assignedTeamMember && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2 text-sm text-red-600 font-medium"
+                    >
+                      {errors.assignedTeamMember}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <label className="block text-base font-medium text-gray-500 mb-2">
+                  Budget *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">
+                    $
+                  </span>
+                  <motion.input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.budget || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = value === '' ? 0 : parseFloat(value);
+                      setFormData({
+                        ...formData,
+                        budget: isNaN(numValue) ? 0 : numValue,
+                      });
+                    }}
+                    whileFocus={{ scale: 1.02 }}
+                    className={`w-full pl-10 pr-5 py-4 text-base rounded-xl text-gray-900 placeholder-gray-400 bg-white/80 backdrop-blur-sm border-2 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                      errors.budget ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="0.00"
+                  />
+                </div>
+                {formData.budget > 0 && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2 text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent"
+                  >
+                    {new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    }).format(formData.budget)}
+                  </motion.p>
+                )}
+                <AnimatePresence>
+                  {errors.budget && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2 text-sm text-red-600 font-medium"
+                    >
+                      {errors.budget}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex justify-end space-x-4 pt-6"
+              >
+                <motion.button
+                  type="button"
+                  onClick={onClose}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3 text-base font-bold border-2 border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-lg transition-all"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                  whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                  className="px-8 py-3 text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 shadow-xl flex items-center justify-center min-w-[140px] transition-all"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center">
+                      <LoadingSpinner size="sm" />
+                      <span className="ml-2">Saving...</span>
+                    </span>
+                  ) : (
+                    project ? 'Update' : 'Create'
+                  )}
+                </motion.button>
+              </motion.div>
+            </form>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
-

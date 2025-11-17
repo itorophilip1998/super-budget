@@ -57,6 +57,7 @@ docker-compose down
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Testing](#testing)
 - [API Documentation](#api-documentation)
 - [Security](#security)
 - [Development](#development)
@@ -71,6 +72,7 @@ docker-compose down
 - ✅ Search functionality (by name or team member)
 - ✅ Responsive design with Tailwind CSS
 - ✅ Email notifications when team members are assigned
+- ✅ Animated loading spinners
 
 ### Project Management
 - Create, read, update, and delete projects
@@ -112,6 +114,7 @@ docker-compose down
 - **pgAdmin 4** - Database management UI
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
+- **Jest** - Testing framework
 
 ## 📁 Project Structure
 
@@ -127,7 +130,9 @@ super-budget/
 │   │   ├── projects/        # Project CRUD operations
 │   │   ├── email/           # Email service
 │   │   ├── prisma/          # Prisma service
+│   │   ├── app.module.ts    # Root module
 │   │   └── main.ts          # Application entry point
+│   ├── test/               # E2E tests
 │   ├── Dockerfile
 │   └── package.json
 │
@@ -151,6 +156,54 @@ super-budget/
 ├── start.bat                # Startup script (Windows)
 └── README.md                # This file
 ```
+
+## 🧪 Testing
+
+### Backend Tests
+
+**Unit Tests:**
+```bash
+cd backend
+npm test
+```
+
+**Watch Mode:**
+```bash
+npm run test:watch
+```
+
+**Coverage:**
+```bash
+npm run test:cov
+```
+
+**E2E Tests:**
+```bash
+npm run test:e2e
+```
+
+### Frontend Tests
+
+**Run Tests:**
+```bash
+cd frontend
+npm test
+```
+
+**Watch Mode:**
+```bash
+npm run test:watch
+```
+
+**Coverage:**
+```bash
+npm run test:coverage
+```
+
+### Test Coverage
+
+- **Backend**: Unit tests for services, E2E tests for API endpoints
+- **Frontend**: Component tests, API client tests
 
 ## 🚀 Getting Started
 
@@ -379,20 +432,7 @@ For more detailed information, see:
 - [Security Guide](./docs/security.md)
 - [Docker Guide](./docs/docker.md)
 - [Development Guide](./docs/development.md)
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-cd backend
-npm test
-```
-
-### E2E Tests
-```bash
-cd backend
-npm run test:e2e
-```
+- [Technology Stack](./docs/technology-stack.md)
 
 ## 🚢 Deployment
 
@@ -441,4 +481,3 @@ Built as a full-stack development project.
 ---
 
 For detailed documentation, please refer to the [docs](./docs/) folder.
-
